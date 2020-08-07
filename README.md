@@ -11,7 +11,7 @@ In light of the "save-the-world" movement, the codes snippet allow Shopify store
 Effectively, we are reversing the behaviour of the original "**Add a gift-wrap option to your cart page**" - [see here](http://docs.shopify.com/manual/configuration/store-customization/page-specific/cart-page/add-a-gift-wrap-option)
 
 # Instructions
-Pls note to change the word "gift wrapping/wrap" to "gift box" where applicable when following the instructions in the guide.
+Pls note to replace the word "gift wrapping/wrap" to "gift box" where applicable when following the instructions in the guide.
 
 
 # Credits
