@@ -1,0 +1,106 @@
+<!-- DO NOT REMOVE THE FOLLOWING COMMENT -->
+<!-- Modified the forked codes from https://github.com/carolineschnapp/carolineschnapp-gift-wrap/ -->
+<!-- Credits to the original author: Mlle Caroline Schnapp -->
+<!-- DO NOT REMOVE THE ABOVE COMMENT -->
+
+{% if linklists.gift-box.links.size > 0 and linklists.gift-box.links.first.type == 'product_link' %}
+
+  <div id="is-a-gift" style="clear: left; margin: 30px 0" class="clearfix rte">
+    <p>
+      <input type="hidden" name="attributes[gift-box]" value="" />
+      <input id="gift-box" type="checkbox" name="attributes[gift-box]" value="yes" {% if cart.attributes.gift-box == nil %} checked="checked"{% endif %} style="float: none" />
+      <label for="gift-box" style="display:inline; padding-left: 5px; float: none;">
+      Save the world! I don't need a gift box.
+      </label>
+    </p>
+    <p>
+      <label style="display:block" for="gift-note">Gift message (free and optional):</label>
+      <textarea name="attributes[gift-note]" id="gift-note">{{ cart.attributes.gift-note }}</textarea>
+    </p>
+  </div>
+
+{% assign id = linklists.gift-box.links.first.object.variants.first.id %}
+
+{% assign gift_boxes_in_cart = 0 %}
+{% for item in cart.items %}
+  {% if item.id == id %}
+    {% assign gift_boxes_in_cart = item.quantity %}
+  {% endif %}
+{% endfor %}
+
+<style>
+  #updates_{{ id }} { display: none; }
+</style>
+
+<script>
+
+Shopify.Cart = Shopify.Cart || {};
+
+Shopify.Cart.GiftBox = {};
+
+Shopify.Cart.GiftBox.set = function() {
+  jQuery.ajax({
+    type: 'POST',
+    url: '/cart/update.js', 
+    data: { updates: { {{ id }}: 1 }, attributes: { 'gift-box': true } }, 
+    dataType: 'json',
+    success: function() { location.href = '/cart'; }
+  });
+}
+
+Shopify.Cart.GiftBox.remove = function() {
+  jQuery.ajax({
+    type: 'POST',
+    url: '/cart/update.js', 
+    data: { updates: { {{ id }}: 0 }, attributes: { 'gift-box': '' } }, 
+    dataType: 'json',
+    success: function() { location.href = '/cart'; }
+  });
+}
+
+// If we have nothing but gift-box items in the cart.
+{% if cart.items.size == 1 and gift_boxes_in_cart > 0 %}
+jQuery(function() {
+  Shopify.Cart.GiftBox.remove();
+});
+// If we have more than one gift-box item in the cart.
+{% elsif gift_boxes_in_cart > 1 %}
+jQuery(function() {
+  Shopify.Cart.GiftBox.set();
+});
+// If we have a gift-box item in the cart but our gift-box cart attribute has not been set.
+{% elsif gift_boxes_in_cart > 0 and cart.attributes.gift-box == blank  %}
+jQuery(function() {
+  Shopify.Cart.GiftBox.set();
+});
+// If we have no gift-box item in the cart but our gift-box cart attribute has been set.
+{% elsif gift_boxes_in_cart == 0 and cart.attributes.gift-box != blank  %}
+jQuery(function() {
+  Shopify.Cart.GiftBox.remove();
+});
+{% endif %}
+
+// When the gift-box checkbox is checked or unchecked.
+jQuery(function() {
+  jQuery('[name="attributes\[gift-box\]"]').change(function() {
+    if (jQuery(this).is(':checked')) {
+      Shopify.Cart.GiftBox.remove();    
+    }
+    else {
+      Shopify.Cart.GiftBox.set();
+    }
+  });
+});
+ 
+</script>
+
+{% else %}
+
+<p style="clear: left; margin: 30px 0" class="rte">
+  You attempted to add a gift-box script to your shopping cart, but it won't work because you don't have 
+  a link list with handle <code>gift-box</code> which, in turn, contains a link
+  to your gift-box product. Please review the steps outlined 
+  <a href="https://shopify.dev/tutorials/customize-theme-add-gift-wrap-option" target="_blank" rel="noopener noreferrer nofollow">here</a>.
+</p>
+
+{% endif %}
